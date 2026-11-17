@@ -313,3 +313,14 @@ Le FavorisModel vit en mrmoire dans le Dart VM   le hot restart le recrer a zero
 
 
 
+## TP6 Palier 4 
+Q1/
+main n a pas changé pendant que la branche travaille : les deux branches ne modifiaient jamais les memes lignes .
+
+Q2/
+Les lignes ======= restent dans le fichier si on commite, les marqueurs polluent le code sur main.
+
+
+![Screenshot](assets/images/conflit.png)
+
+
