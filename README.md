@@ -277,3 +277,10 @@ user a pu quitter l'ecran pendant l'attente, donc utiliser context apres l'await
 ![Screenshot](assets/images/confiavecnum.png)
 
 ![Screenshot](assets/images/pasconfimsgerr.png)
+
+
+Palier 5 : Mes Voyages
+
+![Screenshot](assets/images/voypalier5.png)
+
+
