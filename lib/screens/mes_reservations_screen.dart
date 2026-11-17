@@ -49,11 +49,56 @@ class _MesReservationsScreenState extends State<MesReservationsScreen> {
         ),
       );
     }
-    return ListView(
+    return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(20),
-      children: [for (final r in reservations) _construireCarte(r)],
+      itemCount: reservations.length,
+      itemBuilder: (context, i) {
+        final r = reservations[i];
+        return Dismissible(
+          key: ValueKey(r.id),
+          direction: DismissDirection.endToStart,
+          background: _construireFondSuppression(),
+          onDismissed: (_) {
+            setState(() => reservations.removeAt(i));
+            _supprimer(r);
+          },
+          child: _construireCarte(r),
+        );
+      },
     );
+  }
+
+  Widget _construireFondSuppression() {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 20),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: cs.error,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Icon(Icons.delete_outline, color: cs.onError),
+    );
+  }
+
+  Future<void> _supprimer(Reservation r) async {
+    try {
+      await ApiService.supprimerReservation(r.id!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${r.destination.nom} annulé')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Annulation impossible, réessayez')),
+        );
+      }
+      await _recharger();
+    }
   }
 
   Widget _construireCarte(Reservation r) {

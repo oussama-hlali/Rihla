@@ -46,6 +46,15 @@ class ApiService {
         .toList();
   }
 
+  static Future<void> supprimerReservation(String id) async {
+    final reponse = await http
+        .delete(_url('/reservations/$id'))
+        .timeout(ApiConfig.timeout);
+    if (reponse.statusCode != 200) {
+      throw Exception('Erreur serveur (code ${reponse.statusCode})');
+    }
+  }
+
   static Future<String> creerReservation(Reservation reservation) async {
     final reponse = await http
         .post(

@@ -284,3 +284,11 @@ Palier 5 : Mes Voyages
 ![Screenshot](assets/images/voypalier5.png)
 
 
+Bonus : Suppression
+
+![Screenshot](assets/images/supbonus.png)
+
+
+![Screenshot](assets/images/supbonu.png)
+
+
