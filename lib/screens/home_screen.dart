@@ -11,6 +11,11 @@ import '../widgets/home_header.dart';
 import '../widgets/search_box.dart';
 import '../widgets/section_title.dart';
 
+import 'package:provider/provider.dart';
+
+import '../providers/favoris_model.dart';
+import '../screens/favoris_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -129,9 +134,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     Widget corps;
+    final nombre = context.watch<FavorisModel>().nombre;
     switch (_onglet) {
       case 0:
         corps = _construireExplorer();
+      case 1:
+        corps = const FavorisScreen();
       case 2:
         corps = const MesReservationsScreen();
       default:
@@ -146,18 +154,22 @@ class _HomeScreenState extends State<HomeScreen> {
             _onglet = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore),
             label: 'Explorer',
           ),
           NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite),
+            icon: Badge(
+              isLabelVisible: nombre > 0,
+              label: Text('$nombre'),
+              child: const Icon(Icons.favorite_border),
+            ),
+            selectedIcon: const Icon(Icons.favorite),
             label: 'Favoris',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.luggage_outlined),
             selectedIcon: Icon(Icons.luggage),
             label: 'Voyages',

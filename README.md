@@ -292,3 +292,24 @@ Bonus : Suppression
 ![Screenshot](assets/images/supbonu.png)
 
 
+
+## TP6 Palier 2:
+
+
+Q1/
+Parce qu il n a plus d etat a lui , c est Provider qui le reconstruit.
+
+Q2/
+
+id est un identifiant stable qui survit au rechargement.
+
+Q3/
+
+Le FavorisModel vit en mrmoire dans le Dart VM   le hot restart le recrer a zero
+
+![Screenshot](assets/images/favroisacc.png)
+![Screenshot](assets/images/favorisidi.png)
+![Screenshot](assets/images/onglefavori.png)
+
+
+
