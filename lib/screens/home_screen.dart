@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../data/destinations.dart';
 import '../models/destination.dart';
+import '../providers/favoris_model.dart';
+import '../providers/reglages_model.dart';
+import '../screens/favoris_screen.dart';
 import '../screens/mes_reservations_screen.dart';
 import '../services/api_service.dart';
 import '../widgets/destination_card.dart';
@@ -10,11 +14,6 @@ import '../widgets/hero_banner.dart';
 import '../widgets/home_header.dart';
 import '../widgets/search_box.dart';
 import '../widgets/section_title.dart';
-
-import 'package:provider/provider.dart';
-
-import '../providers/favoris_model.dart';
-import '../screens/favoris_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // TODO 1 : une seule requête, jamais dans build()
     _futurDestinations = ApiService.getDestinations();
   }
 
@@ -54,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return FutureBuilder<List<Destination>>(
       future: _futurDestinations,
       builder: (context, snapshot) {
-        // TODO 2 : chargement
         if (snapshot.connectionState == ConnectionState.waiting &&
             !snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -66,17 +63,43 @@ class _HomeScreenState extends State<HomeScreen> {
             onReessayer: _recharger,
           );
         }
-        // TODO 3 : erreur
-        if (snapshot.hasError) {
-          return ErreurReseau(
-            message: 'Impossible de charger les destinations.',
-            onReessayer: _recharger,
-          );
-        }
         final destinations = snapshot.data!;
         return RefreshIndicator(
           onRefresh: _recharger,
-          child: _construireAccueil(destinations),
+          child: Column(
+            children: [
+              if (ApiService.depuisCache)
+                Container(
+                  width: double.infinity,
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.wifi_off,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Hors connexion : données enregistrées',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onErrorContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Expanded(child: _construireAccueil(destinations)),
+            ],
+          ),
         );
       },
     );
@@ -135,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Widget corps;
     final nombre = context.watch<FavorisModel>().nombre;
+    final sombre = context.watch<ReglagesModel>().sombre;
     switch (_onglet) {
       case 0:
         corps = _construireExplorer();
@@ -146,6 +170,16 @@ class _HomeScreenState extends State<HomeScreen> {
         corps = const Center(child: Text('Bientôt disponible'));
     }
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rihla'),
+        actions: [
+          IconButton(
+            tooltip: sombre ? 'Mode clair' : 'Mode sombre',
+            icon: Icon(sombre ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => context.read<ReglagesModel>().basculerTheme(),
+          ),
+        ],
+      ),
       body: SafeArea(child: corps),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _onglet,
