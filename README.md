@@ -324,3 +324,43 @@ Les lignes ======= restent dans le fichier si on commite, les marqueurs polluent
 ![Screenshot](assets/images/conflit.png)
 
 
+## TP7 Journal IA et Questions
+
+### Journal IA
+
+| # | Outil | Demande / intention | Décision | Pourquoi |
+|---|-------|---------------------|----------|----------|
+| 1 | Complétion | TODO `charger()` de `FavorisModel` | Acceptée | `getStringList(_cle) ?? []` gère le premier lancement, puis `jsonDecode` + `Destination.fromJson` reconstruisent les objets. |
+| 2 | Complétion | TODO `_sauvegarder()` de `FavorisModel` | Modifiée | Copilot oubliait le `await` devant `prefs.setStringList` : ajouté, sinon l'écriture n'était pas garantie avant la fermeture de l'app. |
+| 3 | Complétion | TODO `ReglagesModel.charger()` / `basculerTheme()` | Modifiée | Copilot proposait `prefs.getBool(_cle) ?? true` : remis à `?? false` (valeur par défaut de l'énoncé) et `notifyListeners()` ajouté dans `basculerTheme()`, sinon l'icône ne se mettait pas à jour. |
+| 4 | Chat inline (Ctrl+I) | Améliorer le bandeau « Hors connexion » | Modifiée | Proposition avec `Colors.amber.shade100` illisible en thème sombre : remplacée par `colorScheme.errorContainer` / `onErrorContainer` + icône `wifi_off`. |
+| 5 | Chat (/explain) | Expliquer `FavorisModel()..charger()` | Acceptée | L'opérateur cascade appelle `charger()` et renvoie l'instance du modèle, que le Provider peut fournir. |
+
+### Partie 1 — Favoris persistants
+
+Q1/ Pourquoi stocker des `String` JSON et pas directement des objets `Destination` ?
+
+SharedPreferences ne sait enregistrer que des types primitifs (String, bool, int, double, List<String>). Un Destination doit donc être transformé en texte avec jsonEncode(d.toJson()), puis reconstruit avec Destination.fromJson(jsonDecode(texte)) au chargement.
+
+Q2/ Que fait exactement `FavorisModel()..charger()` ? Que se passerait-il avec `FavorisModel().charger()` ?
+
+Le ..  appelle charger() sur l'instance nouvellement créée et renvoie cette instance, ce qu'attend create: du Provider.
+
+Q3/ Pourquoi oublier `notifyListeners()` à la fin de `charger()` serait-il un bug discret ?
+
+Le chargement est asynchrone : il se termine après le premier build des écrans. Sans notification, les cœurs et le badge restent vides jusqu'à un autre événement (tap, changement d'onglet).
+
+### Partie 3 — Mode hors-ligne
+
+Q4/ Pourquoi mémoriser le cache après avoir vérifié le `statusCode`, et pas avant ?
+
+Pour ne stocker que des données valides.
+
+Q5/ Que voit l'utilisateur qui ouvre Rihla pour la première fois sans serveur ? Pourquoi ?
+
+Il voit l'écran d'erreur du TP5 (`ErreurReseau`). Aucun chargement réussi n'a eu lieu : `getString(_cleCache)` renvoie `null`, donc `rethrow` relance l'exception et le `FutureBuilder` passe dans `snapshot.hasError`.
+
+Q6/ Que fait `rethrow`, et qui récupère l'erreur ensuite ?
+
+rethrow relance la même exception en préservant sa pile d'appel elle est récupérée par le FutureBuilder de l'accueil.
+
